@@ -249,7 +249,11 @@ md"""
 
 # ╔═╡ 66c4f3fc-66db-11eb-0927-ebe1d40eeb3b
 function sumup(n)
-	return missing
+	x=0
+	for i = 1 : n
+		x+=i
+	end 
+	return x
 end
 
 # ╔═╡ 575d9e52-6468-11eb-2f95-63cd3920f91a
@@ -314,7 +318,7 @@ md"""
 """
 
 # ╔═╡ a87e36c4-66eb-11eb-223e-a1b077dca672
-B = broadcast(./,π, A)
+B = broadcast(/,A,π )
 
 # ╔═╡ 0aa99f86-6f97-11eb-2141-2d35c3e0857d
 md"""
@@ -358,29 +362,11 @@ begin
 	z = map(cos,x)
 end;
 
-# ╔═╡ 44ee1586-6f98-11eb-3452-f7db9e3738ad
-md"""
-🎓 Call the plot function with a single argument. Try out all arguments `x`, `y`, and `z`.
-"""
-
-# ╔═╡ 4a8f3088-6f98-11eb-1d0e-4b1ba2e676ae
-missing
-
 # ╔═╡ 50cc4f32-6f98-11eb-25a4-ebaf581955ea
-md"""
-🎓 Call the plot function with two argument. Try out different combinations of arguments.
-"""
-
-# ╔═╡ 56177258-6f98-11eb-276f-7d8053bdcb86
-missing
+plot(x)
 
 # ╔═╡ 5733a026-6f98-11eb-1b50-c75f87fbabe5
-md"""
-🎓 Call the plot function with all three arguments. What happens if you exchange their order?
-"""
-
-# ╔═╡ 5d770eb4-6f98-11eb-3206-8d26f2717981
-missing
+plot(x,y,z)
 
 # ╔═╡ 6824d1f2-6f98-11eb-12f1-adf1271af917
 md"""
@@ -389,8 +375,9 @@ Arguments are interpreted flexibly. We have already seen that we can plot `x`, w
 🎓 Plot the `exp` function over the range given by `x` by passing `x` and `exp` directly.
 """
 
-# ╔═╡ 6debc444-6f98-11eb-3c9e-4dc533fe13ec
-missing
+
+# ╔═╡ 6b497cf9-be7e-4bce-8da2-9b543a267943
+plot(map(exp,x))
 
 # ╔═╡ 77d17b00-6f98-11eb-37ad-dd347db13fb3
 md"""
@@ -416,7 +403,9 @@ We can modify [attributes](https://docs.juliaplots.org/latest/attributes/) of a 
 """
 
 # ╔═╡ a32f2a4a-6f98-11eb-18f9-efb51aac288c
-missing
+plot(y,z,
+	seriestype=seriestype1,
+	label="circle")
 
 # ╔═╡ acc530cc-6f98-11eb-330e-077fcaf5bd62
 md"""
@@ -445,7 +434,7 @@ We can pass attributes for each element in a series by passing a row vector
 """
 
 # ╔═╡ fd8522ec-6f98-11eb-0a3c-01a91ee48de9
-missing
+plot(yseries,z, seriestype=seriestype2, label =["circle" "line1" "ellipse" "line2"])
 
 # ╔═╡ 0cce95b2-6f99-11eb-1161-1d446c3bbe44
 md"""
@@ -1667,14 +1656,10 @@ version = "0.9.1+5"
 # ╟─1559f57e-6f98-11eb-3539-1b1ae82c439b
 # ╟─36e6783c-6f98-11eb-0b09-db56907e370d
 # ╠═3f4422ce-6f98-11eb-111f-4d1624a326c7
-# ╟─44ee1586-6f98-11eb-3452-f7db9e3738ad
-# ╠═4a8f3088-6f98-11eb-1d0e-4b1ba2e676ae
-# ╟─50cc4f32-6f98-11eb-25a4-ebaf581955ea
-# ╠═56177258-6f98-11eb-276f-7d8053bdcb86
-# ╟─5733a026-6f98-11eb-1b50-c75f87fbabe5
-# ╠═5d770eb4-6f98-11eb-3206-8d26f2717981
-# ╟─6824d1f2-6f98-11eb-12f1-adf1271af917
-# ╠═6debc444-6f98-11eb-3c9e-4dc533fe13ec
+# ╠═50cc4f32-6f98-11eb-25a4-ebaf581955ea
+# ╠═5733a026-6f98-11eb-1b50-c75f87fbabe5
+# ╠═6824d1f2-6f98-11eb-12f1-adf1271af917
+# ╠═6b497cf9-be7e-4bce-8da2-9b543a267943
 # ╟─77d17b00-6f98-11eb-37ad-dd347db13fb3
 # ╟─8b852fd4-6f98-11eb-1b3a-7ff47c51e99e
 # ╠═8f566768-6f98-11eb-20ae-45d6f39cd210
