@@ -232,7 +232,7 @@ As we have seen before, pixel values in our gray scale image lie in $[0,1]$. The
 """
 
 # ╔═╡ 1ca07ab6-6b19-11eb-2667-d751db42b5b9
-imagetlU8 = missing
+imagetlU8 = reinterpret(UInt8,imagetl)
 
 # ╔═╡ 9e624ae0-6b7b-11eb-1f76-8bc9423aec69
 md"""
@@ -244,7 +244,7 @@ The next step in the encoding is to shift from a positive range $[0,255]$ to one
 """
 
 # ╔═╡ feb6a160-6b18-11eb-3104-01a6b3df8568
-imagetlU8valueshift = missing
+imagetlU8valueshift = imagetlU8 .-128
 
 # ╔═╡ aa7e7286-6b7b-11eb-0ca2-8b9b87032500
 md"""
