@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.18.4
+# v0.19.0
 
 using Markdown
 using InteractiveUtils
@@ -77,9 +77,6 @@ The encoding of the raw byte stream is
 🎓 Calculate the number of pixels from the `length` of `raw_camera_data` and assign your solution to the variable `N`.
 """
 
-# ╔═╡ 3cd7e918-6abf-11eb-34df-43d0375c13d2
-N = missing
-
 # ╔═╡ 01ecb23c-6ac1-11eb-216e-cf71d79767aa
 md"""
 ### Task 2
@@ -88,15 +85,6 @@ Next, we aim split up the individual channels of our array. This can be achieved
 
 🎓 Use the encoding information to construct range objects `Ir`, `Ig`, and `Ib`, which allow us to extract the red, green, and blue color channel, respectively.
 """
-
-# ╔═╡ 04ef21b2-6ac2-11eb-0c0a-63e26ace9bd5
-Ir = missing
-
-# ╔═╡ 72a07900-6ad0-11eb-05e9-93add2a50013
-Ig = missing
-
-# ╔═╡ 7669023c-6ad0-11eb-093f-ffd78d40f882
-Ib = missing
 
 # ╔═╡ 01d671e6-6ad5-11eb-3175-e7ba17bd5363
 md"""
@@ -118,9 +106,6 @@ Sometimes, we would like to avoid copying. This can be done by creating a `SubAr
 🎓 Such a `SubArray` can be created using the `view` function. Read its documentation and create a view on the blue channel contained within `raw_camera_data`. Bind this view to the variable `raw_blue_camera_data`.
 """
 
-# ╔═╡ dc157882-6ad4-11eb-1a86-157a2851833a
-raw_blue_camera_data = missing
-
 # ╔═╡ 67afb97a-6ad0-11eb-225b-5503c368532d
 md"""
 ### Task 4
@@ -130,18 +115,12 @@ So far we have left the data stream 1D. However, this data actually represents a
 🎓 Use the width `w` and height `h` to `reshape` the 1D array `raw_red_camera_data` into a `w`$\times$`h` 2D array (matrix). Assign your result to the variable `red_camera_data`.
 """
 
-# ╔═╡ ae9345da-6ad2-11eb-098d-17862bfb276d
-red_camera_data = missing
-
 # ╔═╡ 6e5395e6-6ad8-11eb-0245-47879f360f86
 md"""
 ### Task 5
 
 Now that we have the data in the correct shape we may try to visualize it by broadcasting it with the `Gray` function, which is available with the `Images` package.
 """
-
-# ╔═╡ 863d3ad8-6ad9-11eb-2f10-47d534c5183c
-Gray.(red_camera_data)
 
 # ╔═╡ 168eb0e6-6ada-11eb-3a9a-cb27f579af5b
 md"""
@@ -168,9 +147,6 @@ We can solve this issue by normalizing these values as pointed out in the error 
 🎓 Use either of the methods pointed out in the error message above to normalize the values, broadcast the normalized values using the `Gray` function and assign the result to the variable `red_image_data`.
 """
 
-# ╔═╡ c617cd06-6ad1-11eb-0bb4-71f538340041
-red_image_data = missing
-
 # ╔═╡ 32f22538-6af3-11eb-1fd9-43d86761061e
 md"""
 ### Task 6
@@ -179,9 +155,6 @@ What we observe is that the image is flipped to its side. This occurs, since mul
 
 🎓 Transpose `red_image_data` in order achieve the correct interpretation of the data and assign the result to the variable `red_image_data_transpose`.
 """
-
-# ╔═╡ ae0ca742-6af4-11eb-0921-ddaf797dbedb
-red_image_data_transpose = missing
 
 # ╔═╡ 0720d5da-6b07-11eb-0d4e-f907bfc19a76
 md"""
@@ -194,7 +167,14 @@ Now let us put everything together.
 
 # ╔═╡ b576cebe-6b07-11eb-208f-5f94d361b322
 function process_raw_camera_data(raw_camera_data, w, h)
-	return missing
+	N::Int = length(raw_camera_data)/4
+	Ir = range(1, step=4, length=N)
+	Ig = range(2, step=4, length=N)
+	Ib = range(3, step=4, length=N)
+	red_image_data = reinterpret(N0f8, reshape(raw_camera_data[Ir] , w , h)) 
+	green_image_data = reinterpret(N0f8, reshape(raw_camera_data[Ig] , w , h))
+	blue_image_data = reinterpret(N0f8, reshape(raw_camera_data[Ib] , w , h))
+	return transpose(Gray.(N0f8(0.212)*red_image_data+N0f8(0.714)*green_image_data+N0f8(0.074)*blue_image_data))
 end
 
 # ╔═╡ 301d6c16-6b0f-11eb-3b8b-0fa0812605bc
@@ -208,7 +188,16 @@ As a last exercise on array manipulation let us now convert the `raw_camera_data
 
 # ╔═╡ 64bb481c-6b0f-11eb-1967-1fc3c22200f0
 function process_raw_camera_data_color(raw_camera_data, w, h)
-	return missing
+	N::Int = length(raw_camera_data)/4
+	Ir = range(1, step=4, length=N)
+	Ig = range(2, step=4, length=N)
+	Ib = range(3, step=4, length=N)
+	Ia = range(4, step=4, length=N)
+	red_image_data = reinterpret(N0f8, reshape(raw_camera_data[Ir] , w , h)) 
+	green_image_data = reinterpret(N0f8, reshape(raw_camera_data[Ig] , w , h))
+	blue_image_data = reinterpret(N0f8, reshape(raw_camera_data[Ib] , w , h))
+	alpha_image_data = reinterpret(N0f8, reshape(raw_camera_data[Ia] , w , h))
+	return transpose(RGBA.(red_image_data,green_image_data,blue_image_data,alpha_image_data))
 end
 
 # ╔═╡ 67508718-6b0f-11eb-336d-5b0596efcbfd
@@ -231,7 +220,7 @@ The actual compression algorithm does work on $8\times 8$-blocks. So in order to
 """
 
 # ╔═╡ b6fcc2aa-6b18-11eb-26b8-87976eed1b4c
-imagetl = missing
+imagetl = view(image , 1:8 , 1:8)
 
 # ╔═╡ 6777e362-6d4e-11eb-1522-edc03b2a743f
 md"""
@@ -701,17 +690,44 @@ raw_camera_data = raw_camera_dict["data"]
 # ╔═╡ 14343566-6ac1-11eb-004f-d577af5d4bcf
 size(raw_camera_data)
 
+# ╔═╡ 3cd7e918-6abf-11eb-34df-43d0375c13d2
+N::Int = length(raw_camera_data)/4
+
+# ╔═╡ 04ef21b2-6ac2-11eb-0c0a-63e26ace9bd5
+Ir = range(1, step=4, length=N)
+
+# ╔═╡ 72a07900-6ad0-11eb-05e9-93add2a50013
+Ig = range(2, step=4, length=N)
+
+# ╔═╡ 7669023c-6ad0-11eb-093f-ffd78d40f882
+Ib = range(3, step=4, length=N)
+
 # ╔═╡ b4ead108-6ad4-11eb-16dd-71ae476b2989
 raw_red_camera_data = raw_camera_data[Ir]
 
 # ╔═╡ c65b535c-6ad4-11eb-24c2-f13fa59bedd4
 raw_green_camera_data = getindex(raw_camera_data,Ig)
 
+# ╔═╡ dc157882-6ad4-11eb-1a86-157a2851833a
+raw_blue_camera_data = view(raw_camera_data , Ib) 
+
 # ╔═╡ 83650edc-6abb-11eb-3a15-d1ec709d6528
 w = raw_camera_dict["width"]
 
 # ╔═╡ dbf71676-6abb-11eb-3566-d36184515e11
 h = raw_camera_dict["height"]
+
+# ╔═╡ ae9345da-6ad2-11eb-098d-17862bfb276d
+red_camera_data = reshape(raw_red_camera_data , w , h)
+
+# ╔═╡ 863d3ad8-6ad9-11eb-2f10-47d534c5183c
+Gray.(red_camera_data)
+
+# ╔═╡ c617cd06-6ad1-11eb-0bb4-71f538340041
+red_image_data = Gray.(reinterpret( N0f8, red_camera_data))
+
+# ╔═╡ d67a95e8-e927-48ab-a0dc-986ff966ac39
+red_image_data_transpose = transpose(red_image_data)
 
 # ╔═╡ 2c9ebede-6b08-11eb-03e0-9733a7486a00
 process_raw_camera_data(raw_camera_data, w, h)
@@ -2029,7 +2045,7 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╠═c617cd06-6ad1-11eb-0bb4-71f538340041
 # ╟─cb3b6c4c-6af0-11eb-3eef-4bfe3aa16af2
 # ╟─32f22538-6af3-11eb-1fd9-43d86761061e
-# ╠═ae0ca742-6af4-11eb-0921-ddaf797dbedb
+# ╠═d67a95e8-e927-48ab-a0dc-986ff966ac39
 # ╟─2abb3cea-6af5-11eb-20aa-671e662f58c5
 # ╟─0720d5da-6b07-11eb-0d4e-f907bfc19a76
 # ╠═b576cebe-6b07-11eb-208f-5f94d361b322
