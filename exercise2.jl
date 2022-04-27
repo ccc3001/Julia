@@ -286,7 +286,7 @@ and the rounding is done to the nearest integer value.
 Q = [[16,12,14,14,18,24,49,72]  [11,12,13,17,22,35,64,92] [10,14,16,22,37,55,78,95] [16,19,24,29,56,64,87,98] [24,26,40,51,68,81,103,112] [40,58,57,87,109,104,121,100] [51,60,69,80,103,113,120,103] [61,55,56,62,77,92,101,99]]
 
 # ╔═╡ 25e9a0cc-6b23-11eb-045f-836b69c7cdf6
-B = missing
+B =round.(D./Q) 
 
 # ╔═╡ 08cc5ac8-6d71-11eb-2035-ff52fa753c56
 md"""
@@ -310,7 +310,22 @@ Next, we can decode the compressed image. To this end we need to
 
 # ╔═╡ ec0c3920-6d73-11eb-3657-3551fb5efd48
 function decode(B)
-	return missing
+	D=round.(B.*Q)
+	inverseDCT = idct(D)
+	inverseDCT = inverseDCT.+ 128
+	for i=1:size(inverseDCT,1) , j=1:size(inverseDCT,1)
+		if inverseDCT[i,j] > 255 
+			inverseDCT[i,j] = 255
+		end
+		if inverseDCT[i,j] < 0
+			inverseDCT[i,j] = 0
+		end 
+	end 
+	inverseDCT= round.(UInt8, inverseDCT)
+	inverseDCTN0f8 = reinterpret(N0f8 , inverseDCT)
+
+	return Gray.(inverseDCTN0f8)
+	
 end
 
 # ╔═╡ 02e51660-6d74-11eb-3505-53c2b5cdd527
@@ -327,7 +342,11 @@ Put everything together
 
 # ╔═╡ 57f78ea6-6d76-11eb-0ce9-1da763bb82a3
 function encode(imageblock)
-	return missing
+	imagetlU8 = reinterpret(UInt8,imageblock)
+	imagetlU8valueshift = imagetlU8 .-128
+	D = dct(imagetlU8valueshift)
+	B =round.(D./Q) 
+	return B
 end
 
 # ╔═╡ 9e4cb2b8-6d77-11eb-31df-ffe2db5ec780
@@ -335,8 +354,21 @@ md"""
 🎓 Split the `image` into 4 $8\times 8$ blocks and run each trough the JPEG encoding and decoding. Concatenate all blocks into a final image `compressionartifacts`.
 """
 
+# ╔═╡ 07399581-b7e3-4606-af35-02311bc424f1
+begin
+	m1=view(image , 1:8 , 1:8)
+	m2=view(image , 1:8 , 9:16)
+	m3=view(image , 9:16 , 1:8)
+	m4=view(image , 9:16, 9:16)
+	m1=decode(encode(m1))
+	m2=decode(encode(m2))
+	m3=decode(encode(m3))
+	m4=decode(encode(m4))
+	image1=cat(cat(m1,m2,dims=(2,2)),cat(m3,m4,dims=(2,2)),dims=(1,1))
+end 
+
 # ╔═╡ 2f106cfa-71eb-11eb-2beb-a58e9bcd44c3
-compressionartifacts = missing
+compressionartifacts = image1
 
 # ╔═╡ 27f457c8-6c3d-11eb-0394-41799ec3e62a
 md"""
@@ -369,7 +401,7 @@ Gaußian elimination reduces a system to upper triangular form which is then eas
 
 # ╔═╡ 3c6c5958-6c3d-11eb-0145-ad6810fd1feb
 function gaußian_elimination(A)
-	return missing
+	return Matrix(UpperTriangular(A))
 end
 
 # ╔═╡ b5daed82-6c46-11eb-02f5-bd16dcaea96b
@@ -2081,6 +2113,7 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╠═57f78ea6-6d76-11eb-0ce9-1da763bb82a3
 # ╟─22dd1bf4-6d77-11eb-0a0d-4794e366112f
 # ╟─9e4cb2b8-6d77-11eb-31df-ffe2db5ec780
+# ╠═07399581-b7e3-4606-af35-02311bc424f1
 # ╠═2f106cfa-71eb-11eb-2beb-a58e9bcd44c3
 # ╟─5bdc91e4-6d79-11eb-14fb-1d57204e80b0
 # ╟─27f457c8-6c3d-11eb-0394-41799ec3e62a
