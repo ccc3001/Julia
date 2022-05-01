@@ -401,8 +401,16 @@ Gaußian elimination reduces a system to upper triangular form which is then eas
 
 # ╔═╡ 3c6c5958-6c3d-11eb-0145-ad6810fd1feb
 function gaußian_elimination(A)
-	return Matrix(UpperTriangular(A))
+	if size(A,1) == size(A,2)
+		A = UnitUpperTriangular(A)
+
+	else
+		F=lu(A)
+		A= F.U
+	end
+	return A
 end
+
 
 # ╔═╡ b5daed82-6c46-11eb-02f5-bd16dcaea96b
 md"""
@@ -411,7 +419,7 @@ md"""
 Using Gaußian elimination we can reduce the augmented matrix $\pmatrix{\mathbf A & \mathbf b}$
 """
 
-# ╔═╡ 408661c8-6c4c-11eb-1b53-e14bf1e0c198
+# ╔═╡ 11bfd09d-3569-4d94-af7c-db37f43f39e0
 Abreduced = gaußian_elimination(hcat(A,b))
 
 # ╔═╡ cbe6f94e-6c4c-11eb-3374-7d407f486762
@@ -423,7 +431,8 @@ We can find a solution for the linear system $\mathbf A \mathbf x = \mathbf b$ b
 
 # ╔═╡ 497249b4-6c3d-11eb-252b-f755ccaac847
 function backward_substitution(Abreduced)
-	return missing
+	col = size(A,2)
+	return A(col,:)
 end
 
 # ╔═╡ 9f49f4c6-6c52-11eb-1def-ed52905ce363
@@ -2122,7 +2131,7 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╠═3c6c5958-6c3d-11eb-0145-ad6810fd1feb
 # ╟─cee8a0b8-6c45-11eb-1821-070abcf8dce9
 # ╟─b5daed82-6c46-11eb-02f5-bd16dcaea96b
-# ╠═408661c8-6c4c-11eb-1b53-e14bf1e0c198
+# ╠═11bfd09d-3569-4d94-af7c-db37f43f39e0
 # ╟─cbe6f94e-6c4c-11eb-3374-7d407f486762
 # ╠═497249b4-6c3d-11eb-252b-f755ccaac847
 # ╟─42921908-6c51-11eb-253f-c59d162f921d
