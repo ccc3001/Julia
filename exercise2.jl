@@ -401,16 +401,16 @@ Gaußian elimination reduces a system to upper triangular form which is then eas
 
 # ╔═╡ 3c6c5958-6c3d-11eb-0145-ad6810fd1feb
 function gaußian_elimination(A)
-	if size(A,1) == size(A,2)
-		A = UnitUpperTriangular(A)
-
-	else
-		F=lu(A)
-		A= F.U
+	row = size(A,1)
+	for i in 1:row-1
+		pivot = A[i,i]
+		for j in i+1:row
+			base = A[j,i]/pivot
+			A[j,:]=A[j,:]- (base.*A[i,:])
+		end
 	end
-	return A
+	return A   
 end
-
 
 # ╔═╡ b5daed82-6c46-11eb-02f5-bd16dcaea96b
 md"""
@@ -431,8 +431,15 @@ We can find a solution for the linear system $\mathbf A \mathbf x = \mathbf b$ b
 
 # ╔═╡ 497249b4-6c3d-11eb-252b-f755ccaac847
 function backward_substitution(Abreduced)
-	col = size(A,2)
-	return A(col,:)
+	n = size(Abreduced,1)
+	x = zeros(n)
+	b = Abreduced[:,n+1]
+	A = Abreduced[:, 1:n]
+	x[n]=b[n]/A[n,n]
+	for i in (n-1):-1:1
+		x[i] = (b[i] - A[i,i+1:n]' * x[i+1:n]) /A[i,i]
+	end
+	return x
 end
 
 # ╔═╡ 9f49f4c6-6c52-11eb-1def-ed52905ce363
@@ -448,7 +455,7 @@ md"""
 Let us quickly compare with the true solution `x`.
 """
 
-# ╔═╡ 62dd77fe-6c3d-11eb-0f59-557c90b8f946
+# ╔═╡ 68460e8f-a60d-4a4e-91f9-978638787966
 isapprox(xsol,x)
 
 # ╔═╡ a2b0e77e-6c3d-11eb-3dd0-a7ee2eebb0d3
@@ -470,7 +477,17 @@ The linear system $\mathbf A \mathbf x = \mathbf b$ can then be solved by
 
 # ╔═╡ b4aca7c6-6c3d-11eb-1a2c-9b6ec6f4040b
 function gaußian_lu(A)
-	return missing
+	A = convert.(Float64,A)
+	L = zeros(eltype(A),size(A))
+	U=zeros(eltype(A),size(A))
+	n= size(A,1)
+	for i in 1:(n-1)
+		L[i,i] = 1
+		L[i+1:n,i]=A[i+1:n,1]/A[i,i]
+	end
+	L[n,n]=1
+	U = gaußian_elimination(A)
+	return L, U
 end
 
 # ╔═╡ c8cf01c0-6c5b-11eb-0c81-bb4826223084
@@ -494,7 +511,28 @@ If on the other hand  `A` is `UpperTriangular` or `LowerTriangular` or `Diagonal
 
 # ╔═╡ 7f7836a4-6c67-11eb-0668-8f3f62306d04
 function solve(A,b)
-	return missing
+	A=hcat(A,b)
+	F =lu(A)
+	A=F.U
+	@show 
+	
+		#@show Abreduced
+	row = size(A,1)
+	#@show row
+	col = size(A,2)
+	#@show col
+	x =	zeros(row)
+	for i in 1 : row
+		j = row+1-i
+		x[j] = A[j,col] / A[j,j]
+		
+		for k in 1 : (row-i)
+			A[k,col] = A[k,col] - x[j] * A[k,j]
+		end
+	end
+	round(x)
+	@show x
+	return x
 end
 
 # ╔═╡ ec78f35a-6c6b-11eb-22dd-8ffc50fb995e
@@ -2138,15 +2176,15 @@ uuid = "3f19e933-33d8-53b3-aaab-bd5110c3b7a0"
 # ╟─9f49f4c6-6c52-11eb-1def-ed52905ce363
 # ╠═5de3fb4a-6c3d-11eb-1195-edb411d2ce1d
 # ╟─b3ecbcda-6c53-11eb-2b18-971bd185d061
-# ╠═62dd77fe-6c3d-11eb-0f59-557c90b8f946
+# ╠═68460e8f-a60d-4a4e-91f9-978638787966
 # ╟─a2b0e77e-6c3d-11eb-3dd0-a7ee2eebb0d3
 # ╠═b4aca7c6-6c3d-11eb-1a2c-9b6ec6f4040b
-# ╟─9315eab8-6c5a-11eb-0272-99f39b551b6f
+# ╠═9315eab8-6c5a-11eb-0272-99f39b551b6f
 # ╟─c8cf01c0-6c5b-11eb-0c81-bb4826223084
 # ╠═25577f96-6c69-11eb-1b97-775ab27898ee
 # ╟─8173a232-6c69-11eb-204b-498a9a1c9bda
 # ╠═7f7836a4-6c67-11eb-0668-8f3f62306d04
-# ╟─3513db98-6c6c-11eb-2dfc-ebd0a3dce829
+# ╠═3513db98-6c6c-11eb-2dfc-ebd0a3dce829
 # ╟─ec78f35a-6c6b-11eb-22dd-8ffc50fb995e
 # ╠═2655dfde-6c6c-11eb-319b-af6253c872e1
 # ╟─afe19a78-6c6b-11eb-20f7-09ccb3418b22
