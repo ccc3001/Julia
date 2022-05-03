@@ -511,28 +511,8 @@ If on the other hand  `A` is `UpperTriangular` or `LowerTriangular` or `Diagonal
 
 # ╔═╡ 7f7836a4-6c67-11eb-0668-8f3f62306d04
 function solve(A,b)
-	A=hcat(A,b)
-	F =lu(A)
-	A=F.U
-	@show 
-	
-		#@show Abreduced
-	row = size(A,1)
-	#@show row
-	col = size(A,2)
-	#@show col
-	x =	zeros(row)
-	for i in 1 : row
-		j = row+1-i
-		x[j] = A[j,col] / A[j,j]
-		
-		for k in 1 : (row-i)
-			A[k,col] = A[k,col] - x[j] * A[k,j]
-		end
-	end
-	round(x)
-	@show x
-	return x
+
+	return missing 
 end
 
 # ╔═╡ ec78f35a-6c6b-11eb-22dd-8ffc50fb995e
