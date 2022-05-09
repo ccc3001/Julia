@@ -1,5 +1,5 @@
 ### A Pluto.jl notebook ###
-# v0.18.4
+# v0.19.0
 
 using Markdown
 using InteractiveUtils
@@ -76,7 +76,7 @@ md"""
 """
 
 # ╔═╡ 32963018-6d3f-11eb-2985-978ef321da48
-T1 = missing
+T1 = Base.promote_typejoin(Float64, Int64)
 
 # ╔═╡ 39e08cb0-6d3f-11eb-3f3a-2d1b723a3f04
 md"""
@@ -84,7 +84,7 @@ md"""
 """
 
 # ╔═╡ 485d19ac-6d3f-11eb-29e5-d31c7a47f7db
-T2 = missing
+T2 = Base.promote_typejoin(UInt8, UInt16)
 
 # ╔═╡ a26c2d54-6d3f-11eb-2bb4-9ba311ef418c
 md"""
@@ -121,6 +121,10 @@ In order handle quaternions it is now time to make use of [composite types](http
 
 # ╔═╡ e154ed1a-6d3f-11eb-3156-3f5560929e13
 struct SQuaternion <: AbstractQuaternion
+	a
+	b
+	c
+	d
 end
 
 # ╔═╡ e98cd524-6d3f-11eb-1b29-03b3342ad6f8
@@ -152,7 +156,12 @@ Julia complains that fields of objects of type `Quaternion` cannot be modified. 
 """
 
 # ╔═╡ 02cdf05e-6d40-11eb-3676-a9a3999c2405
-missing
+mutable struct MQuaternion <: AbstractQuaternion
+	a
+	b
+	c
+	d
+end
 
 # ╔═╡ 0ba4619a-6d40-11eb-3a5f-61c2629ede16
 md"""
@@ -193,7 +202,20 @@ md"""
 """
 
 # ╔═╡ 435d8cd8-6d40-11eb-1bde-3f145a4bcc41
-missing
+begin
+	mutable struct Quaternion{T<:Real} <: AbstractQuaternion
+		a::T
+		b::T
+		c::T
+		d::T
+	end
+
+	Quaternion(x::T) where {T} = Quaternion(x, convert(typeof(x), 0),convert(typeof(x), 0),convert(typeof(x), 0))
+	
+	Quaternion(a::Real,b::Real,c::Real,d::Real) = Quaternion(promote(a,b,c,d)...)
+
+	Quaternion(z::Complex) = Quaternion(promote(real(z), imag(z), 0, 0)...)
+end
 
 # ╔═╡ 47c7e002-6d40-11eb-0835-27bb3a89b5b7
 md"""
@@ -330,8 +352,12 @@ However, we can apply the generic programming paradigms used in the last section
 
 # ╔═╡ e9b8bd0a-6d40-11eb-3b96-bb01cce4144c
 begin
+	function QuaternionAdd(q1::Quaternion, q2::Quaternion)
+		return Quaternion(q1.a + q2.a, q1.b + q2.b, q1.c + q2.c, q1.d + q2.d)
+	end
 	import Base.:+
-	missing
+	+(q1::Quaternion, q2::Quaternion) = QuaternionAdd(q1,q2)
+	+(q::Quaternion,x::Real) = QuaternionAdd(q, Quaternion(x))
 end
 
 # ╔═╡ eafbf290-6d40-11eb-1979-f18ba55e3c45
@@ -380,7 +406,7 @@ Now let us put everything together and see if it works.
 """
 
 # ╔═╡ 0ca8ec36-6d41-11eb-0be9-5faaec60182c
-p1 = missing
+p1 = Quaternion(1,1,1,0)
 
 # ╔═╡ 0de0fa44-6d41-11eb-16af-3523c547ea6c
 md"""
@@ -388,7 +414,7 @@ md"""
 """
 
 # ╔═╡ 14e4f124-6d41-11eb-2612-07d5aebf6f97
-p2 = missing
+p2 = Quaternion(1+im)
 
 # ╔═╡ 1890b9a2-6d41-11eb-3d63-97a86ac9d7f7
 md"""
@@ -396,7 +422,7 @@ md"""
 """
 
 # ╔═╡ 1bed7646-6d41-11eb-1d13-c576a1da76a9
-p3 = missing
+p3 = p1+p2+1
 
 # ╔═╡ c067fdc8-6d40-11eb-3409-bdd5311ab6be
 md"""
